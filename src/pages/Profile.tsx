@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,10 +6,12 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useBooking } from '@/contexts/BookingContext';
 import { User, Mail, Phone, MapPin, Calendar, Ticket, CreditCard } from 'lucide-react';
 
 const Profile = () => {
   const { toast } = useToast();
+  const { getBookingHistory } = useBooking();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
     name: 'John Doe',
@@ -20,27 +21,7 @@ const Profile = () => {
     address: '123 Main St, City, State 12345'
   });
 
-  // Mock booking history
-  const bookingHistory = [
-    {
-      id: 'TXN1234567890',
-      movie: 'Avatar: The Way of Water',
-      date: '2024-01-15',
-      showtime: '7:00 PM',
-      seats: ['A5', 'A6'],
-      amount: 31.98,
-      status: 'confirmed'
-    },
-    {
-      id: 'TXN1234567891',
-      movie: 'Top Gun: Maverick',
-      date: '2024-01-10',
-      showtime: '9:00 PM',
-      seats: ['C3', 'C4'],
-      amount: 29.98,
-      status: 'completed'
-    }
-  ];
+  const bookingHistory = getBookingHistory();
 
   const handleSaveProfile = () => {
     setIsEditing(false);
@@ -61,7 +42,7 @@ const Profile = () => {
         <Tabs defaultValue="profile" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile">Profile Info</TabsTrigger>
-            <TabsTrigger value="bookings">Booking History</TabsTrigger>
+            <TabsTrigger value="bookings">Booking History ({bookingHistory.length})</TabsTrigger>
             <TabsTrigger value="payments">Payment Methods</TabsTrigger>
           </TabsList>
 
@@ -173,36 +154,46 @@ const Profile = () => {
                   Booking History
                 </CardTitle>
                 <CardDescription>
-                  View all your past and upcoming movie bookings
+                  View all your past and upcoming movie bookings ({bookingHistory.length} total)
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {bookingHistory.map((booking) => (
-                    <Card key={booking.id} className="border border-gray-200">
-                      <CardContent className="pt-6">
-                        <div className="flex justify-between items-start">
-                          <div className="space-y-2">
-                            <h3 className="font-semibold text-lg">{booking.movie}</h3>
-                            <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                              <p><strong>Date:</strong> {booking.date}</p>
-                              <p><strong>Showtime:</strong> {booking.showtime}</p>
-                              <p><strong>Seats:</strong> {booking.seats.join(', ')}</p>
-                              <p><strong>Amount:</strong> ${booking.amount}</p>
+                {bookingHistory.length > 0 ? (
+                  <div className="space-y-4">
+                    {bookingHistory.map((booking) => (
+                      <Card key={booking.id} className="border border-gray-200">
+                        <CardContent className="pt-6">
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-2">
+                              <h3 className="font-semibold text-lg">{booking.movie}</h3>
+                              <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                                <p><strong>Date:</strong> {booking.date}</p>
+                                <p><strong>Showtime:</strong> {booking.showtime}</p>
+                                <p><strong>Seats:</strong> {booking.seats.join(', ')}</p>
+                                <p><strong>Amount:</strong> ${booking.amount}</p>
+                              </div>
+                              <p className="text-xs text-gray-500">
+                                Booking ID: {booking.id} | Booked on: {booking.bookingDate}
+                              </p>
                             </div>
-                            <p className="text-xs text-gray-500">Booking ID: {booking.id}</p>
+                            <Badge 
+                              variant={booking.status === 'confirmed' ? 'default' : 'secondary'}
+                              className={booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : ''}
+                            >
+                              {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                            </Badge>
                           </div>
-                          <Badge 
-                            variant={booking.status === 'confirmed' ? 'default' : 'secondary'}
-                            className={booking.status === 'confirmed' ? 'bg-green-100 text-green-800' : ''}
-                          >
-                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Ticket className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500 text-lg mb-2">No booking history found</p>
+                    <p className="text-gray-400 text-sm">Your movie bookings will appear here once you make a reservation.</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

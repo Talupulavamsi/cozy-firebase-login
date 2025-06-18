@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -95,13 +94,25 @@ const Movies = () => {
   const genres = ['all', 'Action/Adventure', 'Action/Drama', 'Sci-Fi/Adventure', 'Thriller/Drama'];
 
   const filteredMovies = movies.filter(movie => {
-    const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         movie.description.toLowerCase().includes(searchQuery.toLowerCase());
+    console.log('Search query:', searchQuery);
+    console.log('Movie title:', movie.title);
+    console.log('Movie description:', movie.description);
+    
+    const searchLower = searchQuery.toLowerCase().trim();
+    const titleMatch = movie.title.toLowerCase().includes(searchLower);
+    const descriptionMatch = movie.description.toLowerCase().includes(searchLower);
+    const genreMatch = movie.genre.toLowerCase().includes(searchLower);
+    
+    const matchesSearch = searchQuery === '' || titleMatch || descriptionMatch || genreMatch;
     const matchesLanguage = selectedLanguage === 'all' || movie.language === selectedLanguage;
     const matchesGenre = selectedGenre === 'all' || movie.genre === selectedGenre;
     
+    console.log('Matches search:', matchesSearch, 'Matches language:', matchesLanguage, 'Matches genre:', matchesGenre);
+    
     return matchesSearch && matchesLanguage && matchesGenre;
   });
+
+  console.log('Filtered movies count:', filteredMovies.length);
 
   const handleBookTicket = (movie: Movie) => {
     navigate('/booking', { state: { movie } });
