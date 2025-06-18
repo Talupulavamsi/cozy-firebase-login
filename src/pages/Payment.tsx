@@ -22,20 +22,92 @@ const Payment = () => {
   const [cardName, setCardName] = useState('');
   const [processing, setProcessing] = useState(false);
 
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return v;
+    }
+  };
+
+  const formatExpiryDate = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    if (v.length >= 2) {
+      return v.substring(0, 2) + '/' + v.substring(2, 4);
+    }
+    return v;
+  };
+
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCardNumber(e.target.value);
+    if (formatted.length <= 19) {
+      setCardNumber(formatted);
+    }
+  };
+
+  const handleExpiryDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatExpiryDate(e.target.value);
+    if (formatted.length <= 5) {
+      setExpiryDate(formatted);
+    }
+  };
+
+  const validatePaymentForm = () => {
+    if (paymentMethod === 'card') {
+      if (!cardNumber.replace(/\s/g, '') || cardNumber.replace(/\s/g, '').length < 16) {
+        toast({
+          title: "Invalid Card Number",
+          description: "Please enter a valid 16-digit card number",
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (!expiryDate || expiryDate.length < 5) {
+        toast({
+          title: "Invalid Expiry Date",
+          description: "Please enter a valid expiry date (MM/YY)",
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (!cvv || cvv.length < 3) {
+        toast({
+          title: "Invalid CVV",
+          description: "Please enter a valid CVV",
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (!cardName.trim()) {
+        toast({
+          title: "Cardholder Name Required",
+          description: "Please enter the cardholder name",
+          variant: "destructive",
+        });
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handlePayment = async () => {
-    if (!cardNumber || !expiryDate || !cvv || !cardName) {
-      toast({
-        title: "Incomplete Information",
-        description: "Please fill in all payment details",
-        variant: "destructive",
-      });
+    if (!validatePaymentForm()) {
       return;
     }
 
     setProcessing(true);
     
-    // Simulate payment processing
-    setTimeout(() => {
+    // Simulate payment processing with realistic delay
+    try {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
       setProcessing(false);
       toast({
         title: "Payment Successful!",
@@ -47,16 +119,29 @@ const Payment = () => {
           ...bookingData,
           paymentMethod,
           transactionId: 'TXN' + Date.now(),
-          bookingDate: new Date().toISOString()
+          bookingDate: new Date().toISOString(),
+          cardLast4: cardNumber.slice(-4).replace(/\s/g, '')
         }
       });
-    }, 2000);
+    } catch (error) {
+      setProcessing(false);
+      toast({
+        title: "Payment Failed",
+        description: "There was an error processing your payment. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!bookingData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>No booking data found. Please start from the beginning.</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+        <Card className="backdrop-blur-sm bg-white/80 border-0 shadow-lg">
+          <CardContent className="p-8 text-center">
+            <p className="text-lg mb-4">No booking data found.</p>
+            <Button onClick={() => navigate('/movies')}>Return to Movies</Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -131,9 +216,8 @@ const Payment = () => {
                           id="card-number"
                           placeholder="1234 5678 9012 3456"
                           value={cardNumber}
-                          onChange={(e) => setCardNumber(e.target.value)}
+                          onChange={handleCardNumberChange}
                           className="pl-10"
-                          maxLength={19}
                         />
                       </div>
                     </div>
@@ -147,9 +231,8 @@ const Payment = () => {
                             id="expiry"
                             placeholder="MM/YY"
                             value={expiryDate}
-                            onChange={(e) => setExpiryDate(e.target.value)}
+                            onChange={handleExpiryDateChange}
                             className="pl-10"
-                            maxLength={5}
                           />
                         </div>
                       </div>
@@ -161,9 +244,8 @@ const Payment = () => {
                             id="cvv"
                             placeholder="123"
                             value={cvv}
-                            onChange={(e) => setCvv(e.target.value)}
+                            onChange={(e) => setCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
                             className="pl-10"
-                            maxLength={4}
                           />
                         </div>
                       </div>
@@ -176,7 +258,7 @@ const Payment = () => {
                   className="w-full bg-gradient-to-r from-orange-400 to-amber-400 hover:from-orange-500 hover:to-amber-500"
                   disabled={processing}
                 >
-                  {processing ? 'Processing...' : `Pay $${bookingData.totalPrice.toFixed(2)}`}
+                  {processing ? 'Processing Payment...' : `Pay $${bookingData.totalPrice.toFixed(2)}`}
                 </Button>
 
                 <div className="flex items-center justify-center text-sm text-gray-500 mt-4">
@@ -198,6 +280,7 @@ const Payment = () => {
                   <h3 className="font-semibold text-lg">{bookingData.movie.title}</h3>
                   <p className="text-gray-600">{bookingData.movie.genre}</p>
                   <p className="text-gray-600">Duration: {bookingData.movie.duration}</p>
+                  <p className="text-gray-600">Language: {bookingData.movie.language}</p>
                 </div>
 
                 <div className="border-t pt-4 space-y-2">
