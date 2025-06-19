@@ -23,6 +23,7 @@ const Movies = () => {
       language: 'English',
       duration: '3h',
       rating: '9.3',
+      price: 15.99,
       image: 'https://images.unsplash.com/photo-1489599843506-e257b2003e44?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
       releaseDate: '2023-07-21',
       showtimes: ['12:00 PM', '3:00 PM', '6:00 PM', '9:00 PM'],
@@ -34,6 +35,7 @@ const Movies = () => {
       language: 'Telugu',
       duration: '3h 7m',
       rating: '8.8',
+      price: 13.99,
       image: 'https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
       releaseDate: '2022-03-25',
       showtimes: ['2:30 PM', '5:30 PM', '8:30 PM'],
@@ -45,6 +47,7 @@ const Movies = () => {
       language: 'Kannada',
       duration: '2h 48m',
       rating: '8.4',
+      price: 14.99,
       image: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
       releaseDate: '2022-04-14',
       showtimes: ['1:00 PM', '4:00 PM', '7:00 PM', '10:00 PM'],
@@ -56,6 +59,7 @@ const Movies = () => {
       language: 'Telugu',
       duration: '2h 59m',
       rating: '7.6',
+      price: 12.99,
       image: 'https://images.unsplash.com/photo-1489599843506-e257b2003e44?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
       releaseDate: '2021-12-17',
       showtimes: ['11:30 AM', '2:30 PM', '5:30 PM'],
@@ -67,6 +71,7 @@ const Movies = () => {
       language: 'Telugu',
       duration: '2h 39m',
       rating: '8.2',
+      price: 13.99,
       image: 'https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
       releaseDate: '2015-07-10',
       showtimes: ['3:30 PM', '6:30 PM', '9:30 PM'],
@@ -78,6 +83,7 @@ const Movies = () => {
       language: 'English',
       duration: '3h 2m',
       rating: '8.4',
+      price: 16.99,
       image: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
       releaseDate: '2019-04-26',
       showtimes: ['12:30 PM', '4:30 PM', '8:30 PM'],
@@ -89,6 +95,7 @@ const Movies = () => {
       language: 'English',
       duration: '2h 49m',
       rating: '8.6',
+      price: 15.99,
       image: 'https://images.unsplash.com/photo-1489599843506-e257b2003e44?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
       releaseDate: '2014-11-07',
       showtimes: ['1:30 PM', '5:30 PM', '9:30 PM'],
@@ -100,6 +107,7 @@ const Movies = () => {
       language: 'Telugu',
       duration: '3h 2m',
       rating: '8.1',
+      price: 12.99,
       image: 'https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
       releaseDate: '2017-08-25',
       showtimes: ['2:00 PM', '6:00 PM', '9:30 PM'],
@@ -111,6 +119,7 @@ const Movies = () => {
       language: 'Telugu',
       duration: '2h 45m',
       rating: '7.2',
+      price: 11.99,
       image: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
       releaseDate: '2020-01-12',
       showtimes: ['1:30 PM', '5:00 PM', '8:30 PM'],
@@ -128,11 +137,11 @@ const Movies = () => {
     });
   }, [searchTerm, selectedLanguage, selectedGenre]);
 
-  const handleBookNow = (movieTitle: string) => {
+  const handleBookNow = (movie: any) => {
+    console.log('Navigating to booking with movie:', movie);
     navigate('/booking', { 
       state: { 
-        movie: movieTitle,
-        language: selectedLanguage 
+        movie: movie  // Pass the complete movie object
       } 
     });
   };
@@ -256,7 +265,7 @@ const Movies = () => {
                     
                     <Button 
                       className="w-full bg-gradient-to-r from-orange-400 to-amber-400 hover:from-orange-500 hover:to-amber-500 text-white font-medium"
-                      onClick={() => handleBookNow(movie.title)}
+                      onClick={() => handleBookNow(movie)}
                     >
                       Book Now
                     </Button>
