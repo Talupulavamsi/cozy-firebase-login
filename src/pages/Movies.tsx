@@ -24,12 +24,74 @@ interface Movie {
 const Movies = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLanguage, setSelectedLanguage] = useState('all');
+  const [selectedLanguage, setSelectedLanguage] = useState('Telugu');
   const [selectedGenre, setSelectedGenre] = useState('all');
 
   const movies: Movie[] = [
+    // Telugu Movies
     {
       id: '1',
+      title: 'RRR',
+      genre: 'Action/Drama',
+      duration: '3h 7m',
+      rating: 4.7,
+      price: 13.99,
+      image: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=400&h=600&fit=crop',
+      description: 'A fictional story about two legendary revolutionaries away from home before they started fighting for their country.',
+      showtimes: ['1:00 PM', '5:00 PM', '9:00 PM'],
+      language: 'Telugu'
+    },
+    {
+      id: '2',
+      title: 'Pushpa: The Rise',
+      genre: 'Action/Thriller',
+      duration: '2h 59m',
+      rating: 4.5,
+      price: 12.99,
+      image: 'https://images.unsplash.com/photo-1489599433114-0134b4b7b4b8?w=400&h=600&fit=crop',
+      description: 'Violence erupts between red sandalwood smugglers and the police charged with bringing down their organization.',
+      showtimes: ['2:00 PM', '6:00 PM', '10:00 PM'],
+      language: 'Telugu'
+    },
+    {
+      id: '3',
+      title: 'Baahubali 2',
+      genre: 'Action/Adventure',
+      duration: '2h 47m',
+      rating: 4.8,
+      price: 15.99,
+      image: 'https://images.unsplash.com/photo-1478720568477-b727778edf6f?w=400&h=600&fit=crop',
+      description: 'When Shiva, the son of Bahubali, learns about his heritage, he begins to look for answers.',
+      showtimes: ['11:00 AM', '3:00 PM', '7:00 PM', '10:30 PM'],
+      language: 'Telugu'
+    },
+    {
+      id: '4',
+      title: 'Arjun Reddy',
+      genre: 'Romance/Drama',
+      duration: '3h 2m',
+      rating: 4.3,
+      price: 11.99,
+      image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=600&fit=crop',
+      description: 'A short-tempered house surgeon gets used to drugs and drinks when his girlfriend is forced to marry another person.',
+      showtimes: ['12:00 PM', '4:00 PM', '8:00 PM'],
+      language: 'Telugu'
+    },
+    {
+      id: '5',
+      title: 'KGF Chapter 2',
+      genre: 'Action/Drama',
+      duration: '2h 48m',
+      rating: 4.6,
+      price: 14.99,
+      image: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=600&fit=crop',
+      description: 'The blood-soaked land of Kolar Gold Fields has a new overlord now - Rocky, whose name strikes fear in the heart of his foes.',
+      showtimes: ['1:30 PM', '5:30 PM', '9:30 PM'],
+      language: 'Telugu'
+    },
+    // English Movies
+    {
+      id: '6',
       title: 'Avatar: The Way of Water',
       genre: 'Sci-Fi/Adventure',
       duration: '3h 12m',
@@ -41,7 +103,7 @@ const Movies = () => {
       language: 'English'
     },
     {
-      id: '2',
+      id: '7',
       title: 'Top Gun: Maverick',
       genre: 'Action/Drama',
       duration: '2h 37m',
@@ -52,32 +114,22 @@ const Movies = () => {
       showtimes: ['11:00 AM', '3:00 PM', '7:00 PM', '10:30 PM'],
       language: 'English'
     },
+    // Hindi Movies
     {
-      id: '3',
-      title: 'Black Panther: Wakanda Forever',
-      genre: 'Action/Adventure',
+      id: '8',
+      title: 'Dangal',
+      genre: 'Biography/Sport',
       duration: '2h 41m',
-      rating: 4.3,
-      price: 16.99,
-      image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=600&fit=crop',
-      description: 'The people of Wakanda fight to protect their home from intervening world powers.',
-      showtimes: ['12:00 PM', '4:00 PM', '8:00 PM', '11:00 PM'],
-      language: 'English'
-    },
-    {
-      id: '4',
-      title: 'RRR',
-      genre: 'Action/Drama',
-      duration: '3h 7m',
       rating: 4.7,
       price: 13.99,
-      image: 'https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=600&fit=crop',
-      description: 'A fictional story about two legendary revolutionaries away from home before they started fighting for their country.',
-      showtimes: ['1:00 PM', '5:00 PM', '9:00 PM'],
+      image: 'https://images.unsplash.com/photo-1594736797933-d0cc7d06d205?w=400&h=600&fit=crop',
+      description: 'Former wrestler Mahavir Singh Phogat trains his daughters to become world-class wrestlers.',
+      showtimes: ['12:30 PM', '4:30 PM', '8:30 PM'],
       language: 'Hindi'
     },
+    // Korean Movies
     {
-      id: '5',
+      id: '9',
       title: 'Parasite',
       genre: 'Thriller/Drama',
       duration: '2h 12m',
@@ -87,23 +139,11 @@ const Movies = () => {
       description: 'Greed and class discrimination threaten the newly formed symbiotic relationship.',
       showtimes: ['2:00 PM', '6:00 PM', '10:00 PM'],
       language: 'Korean'
-    },
-    {
-      id: '6',
-      title: 'Dune: Part Two',
-      genre: 'Sci-Fi/Adventure',
-      duration: '2h 46m',
-      rating: 4.4,
-      price: 17.99,
-      image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=600&fit=crop',
-      description: 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators.',
-      showtimes: ['11:30 AM', '3:30 PM', '7:30 PM', '10:45 PM'],
-      language: 'English'
     }
   ];
 
-  const languages = ['all', 'English', 'Hindi', 'Korean'];
-  const genres = ['all', 'Action/Adventure', 'Action/Drama', 'Sci-Fi/Adventure', 'Thriller/Drama'];
+  const languages = ['Telugu', 'English', 'Hindi', 'Korean'];
+  const genres = ['all', 'Action/Adventure', 'Action/Drama', 'Action/Thriller', 'Sci-Fi/Adventure', 'Thriller/Drama', 'Romance/Drama', 'Biography/Sport'];
 
   const filteredMovies = movies.filter(movie => {
     const searchLower = searchQuery.toLowerCase().trim();
@@ -112,7 +152,7 @@ const Movies = () => {
     const genreMatch = movie.genre.toLowerCase().includes(searchLower);
     
     const matchesSearch = searchQuery === '' || titleMatch || descriptionMatch || genreMatch;
-    const matchesLanguage = selectedLanguage === 'all' || movie.language === selectedLanguage;
+    const matchesLanguage = movie.language === selectedLanguage;
     const matchesGenre = selectedGenre === 'all' || movie.genre === selectedGenre;
     
     return matchesSearch && matchesLanguage && matchesGenre;
@@ -128,7 +168,7 @@ const Movies = () => {
 
   const clearAllFilters = () => {
     setSearchQuery('');
-    setSelectedLanguage('all');
+    setSelectedLanguage('Telugu');
     setSelectedGenre('all');
   };
 
@@ -174,7 +214,7 @@ const Movies = () => {
                 <SelectContent>
                   {languages.map((language) => (
                     <SelectItem key={language} value={language}>
-                      {language === 'all' ? 'All Languages' : language}
+                      {language}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -198,10 +238,10 @@ const Movies = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-gray-300">
               <Filter className="h-4 w-4" />
-              Showing {filteredMovies.length} of {movies.length} movies
+              Showing {filteredMovies.length} {selectedLanguage} movies
             </div>
             
-            {(searchQuery !== '' || selectedLanguage !== 'all' || selectedGenre !== 'all') && (
+            {(searchQuery !== '' || selectedGenre !== 'all') && (
               <Button
                 onClick={clearAllFilters}
                 variant="outline"

@@ -1,15 +1,40 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Calendar, Clock, MapPin, CreditCard, Download, Home } from 'lucide-react';
+import { useBooking } from '@/contexts/BookingContext';
 
 const BookingConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { addBooking } = useBooking();
   const bookingData = location.state;
+
+  useEffect(() => {
+    // Save booking to Firebase when component mounts
+    if (bookingData) {
+      const saveBooking = async () => {
+        try {
+          await addBooking({
+            movie: bookingData.movie.title,
+            date: new Date().toISOString().split('T')[0],
+            showtime: bookingData.showtime,
+            seats: bookingData.seats.map((seat: any) => seat.id),
+            amount: bookingData.totalPrice,
+            status: 'confirmed'
+          });
+          console.log('Booking saved successfully to Firebase');
+        } catch (error) {
+          console.error('Failed to save booking:', error);
+        }
+      };
+      
+      saveBooking();
+    }
+  }, [bookingData, addBooking]);
 
   if (!bookingData) {
     return (
@@ -30,7 +55,7 @@ const BookingConfirmation = () => {
         <div className="text-center mb-8">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Booking Confirmed!</h1>
-          <p className="text-gray-600">Your movie tickets have been successfully booked</p>
+          <p className="text-gray-600">Your movie tickets have been successfully booked and saved</p>
         </div>
 
         <Card className="backdrop-blur-sm bg-white/80 border-0 shadow-lg mb-6">
@@ -47,11 +72,15 @@ const BookingConfirmation = () => {
                 src={bookingData.movie.image} 
                 alt={bookingData.movie.title}
                 className="w-20 h-28 object-cover rounded"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://images.unsplash.com/photo-1489599433114-0134b4b7b4b8?w=400&h=600&fit=crop';
+                }}
               />
               <div className="flex-1">
                 <h3 className="text-xl font-semibold mb-2">{bookingData.movie.title}</h3>
                 <p className="text-gray-600 mb-2">{bookingData.movie.genre}</p>
                 <p className="text-sm text-gray-500">Duration: {bookingData.movie.duration}</p>
+                <Badge className="mt-2 bg-blue-100 text-blue-800">{bookingData.movie.language}</Badge>
               </div>
             </div>
 

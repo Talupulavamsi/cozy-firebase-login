@@ -7,11 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useBooking } from '@/contexts/BookingContext';
-import { User, Mail, Phone, MapPin, Calendar, Ticket, CreditCard } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, Ticket, CreditCard, Loader2 } from 'lucide-react';
 
 const Profile = () => {
   const { toast } = useToast();
-  const { getBookingHistory } = useBooking();
+  const { getBookingHistory, loading } = useBooking();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
     name: 'John Doe',
@@ -42,7 +42,9 @@ const Profile = () => {
         <Tabs defaultValue="profile" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile">Profile Info</TabsTrigger>
-            <TabsTrigger value="bookings">Booking History ({bookingHistory.length})</TabsTrigger>
+            <TabsTrigger value="bookings">
+              Booking History {!loading && `(${bookingHistory.length})`}
+            </TabsTrigger>
             <TabsTrigger value="payments">Payment Methods</TabsTrigger>
           </TabsList>
 
@@ -154,11 +156,16 @@ const Profile = () => {
                   Booking History
                 </CardTitle>
                 <CardDescription>
-                  View all your past and upcoming movie bookings ({bookingHistory.length} total)
+                  View all your past and upcoming movie bookings {!loading && `(${bookingHistory.length} total)`}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {bookingHistory.length > 0 ? (
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+                    <span className="ml-2 text-gray-600">Loading booking history...</span>
+                  </div>
+                ) : bookingHistory.length > 0 ? (
                   <div className="space-y-4">
                     {bookingHistory.map((booking) => (
                       <Card key={booking.id} className="border border-gray-200">

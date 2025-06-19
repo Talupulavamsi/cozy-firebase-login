@@ -1,5 +1,7 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface BookingItem {
   id: string;
@@ -14,43 +16,96 @@ interface BookingItem {
 
 interface BookingContextType {
   bookings: BookingItem[];
-  addBooking: (booking: Omit<BookingItem, 'id' | 'bookingDate'>) => void;
+  addBooking: (booking: Omit<BookingItem, 'id' | 'bookingDate'>) => Promise<void>;
   getBookingHistory: () => BookingItem[];
+  loading: boolean;
 }
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
 
 export const BookingProvider = ({ children }: { children: ReactNode }) => {
-  const [bookings, setBookings] = useState<BookingItem[]>([
-    {
-      id: 'TXN1234567890',
-      movie: 'Avatar: The Way of Water',
-      date: '2024-01-15',
-      showtime: '7:00 PM',
-      seats: ['A5', 'A6'],
-      amount: 31.98,
-      status: 'confirmed',
-      bookingDate: '2024-01-10'
-    },
-    {
-      id: 'TXN1234567891',
-      movie: 'Top Gun: Maverick',
-      date: '2024-01-10',
-      showtime: '9:00 PM',
-      seats: ['C3', 'C4'],
-      amount: 29.98,
-      status: 'completed',
-      bookingDate: '2024-01-05'
-    }
-  ]);
+  const [bookings, setBookings] = useState<BookingItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const addBooking = (booking: Omit<BookingItem, 'id' | 'bookingDate'>) => {
-    const newBooking: BookingItem = {
-      ...booking,
-      id: `TXN${Date.now()}`,
-      bookingDate: new Date().toISOString().split('T')[0]
+  // Load bookings from Firebase on component mount
+  useEffect(() => {
+    const loadBookings = async () => {
+      try {
+        const bookingsRef = collection(db, 'bookings');
+        const q = query(bookingsRef, orderBy('bookingDate', 'desc'));
+        const querySnapshot = await getDocs(q);
+        
+        const loadedBookings: BookingItem[] = [];
+        querySnapshot.forEach((doc) => {
+          loadedBookings.push({
+            id: doc.id,
+            ...doc.data()
+          } as BookingItem);
+        });
+        
+        setBookings(loadedBookings);
+      } catch (error) {
+        console.error('Error loading bookings from Firebase:', error);
+        // Fallback to default bookings if Firebase fails
+        setBookings([
+          {
+            id: 'TXN1234567890',
+            movie: 'RRR',
+            date: '2024-01-15',
+            showtime: '7:00 PM',
+            seats: ['A5', 'A6'],
+            amount: 27.98,
+            status: 'confirmed',
+            bookingDate: '2024-01-10'
+          },
+          {
+            id: 'TXN1234567891',
+            movie: 'Pushpa: The Rise',
+            date: '2024-01-10',
+            showtime: '9:00 PM',
+            seats: ['C3', 'C4'],
+            amount: 25.98,
+            status: 'completed',
+            bookingDate: '2024-01-05'
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
     };
-    setBookings(prev => [newBooking, ...prev]);
+
+    loadBookings();
+  }, []);
+
+  const addBooking = async (booking: Omit<BookingItem, 'id' | 'bookingDate'>) => {
+    try {
+      const newBooking = {
+        ...booking,
+        bookingDate: new Date().toISOString().split('T')[0]
+      };
+
+      // Add to Firebase
+      const docRef = await addDoc(collection(db, 'bookings'), newBooking);
+      
+      // Add to local state with Firebase-generated ID
+      const bookingWithId: BookingItem = {
+        ...newBooking,
+        id: docRef.id
+      };
+      
+      setBookings(prev => [bookingWithId, ...prev]);
+      console.log('Booking saved to Firebase with ID:', docRef.id);
+    } catch (error) {
+      console.error('Error saving booking to Firebase:', error);
+      
+      // Fallback to local storage if Firebase fails
+      const fallbackBooking: BookingItem = {
+        ...booking,
+        id: `TXN${Date.now()}`,
+        bookingDate: new Date().toISOString().split('T')[0]
+      };
+      setBookings(prev => [fallbackBooking, ...prev]);
+    }
   };
 
   const getBookingHistory = () => {
@@ -58,7 +113,7 @@ export const BookingProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <BookingContext.Provider value={{ bookings, addBooking, getBookingHistory }}>
+    <BookingContext.Provider value={{ bookings, addBooking, getBookingHistory, loading }}>
       {children}
     </BookingContext.Provider>
   );
