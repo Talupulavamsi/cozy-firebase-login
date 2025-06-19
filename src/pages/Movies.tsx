@@ -1,348 +1,253 @@
-
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Clock, Star, Calendar, Search, Filter, HelpCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-
-interface Movie {
-  id: string;
-  title: string;
-  genre: string;
-  duration: string;
-  rating: number;
-  price: number;
-  image: string;
-  description: string;
-  showtimes: string[];
-  language: string;
-}
+import { Search, Star, Clock, Calendar } from 'lucide-react';
+import Navbar from '@/components/Navbar';
 
 const Movies = () => {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('Telugu');
   const [selectedGenre, setSelectedGenre] = useState('all');
 
-  const movies: Movie[] = [
-    // Telugu Movies
+  const movies = [
     {
       id: '1',
-      title: 'RRR',
-      genre: 'Action/Drama',
-      duration: '3h 7m',
-      rating: 4.7,
-      price: 13.99,
-      image: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=400&h=600&fit=crop',
-      description: 'A fictional story about two legendary revolutionaries away from home before they started fighting for their country.',
-      showtimes: ['1:00 PM', '5:00 PM', '9:00 PM'],
-      language: 'Telugu'
+      title: 'Oppenheimer',
+      genre: 'Drama',
+      language: 'English',
+      duration: '3h',
+      rating: '9.3',
+      image: '/oppenheimer.jpg',
+      releaseDate: '2023-07-21',
+      showtimes: ['12:00 PM', '3:00 PM', '6:00 PM', '9:00 PM'],
     },
     {
       id: '2',
-      title: 'Pushpa: The Rise',
-      genre: 'Action/Thriller',
-      duration: '2h 59m',
-      rating: 4.5,
-      price: 12.99,
-      image: 'https://images.unsplash.com/photo-1489599433114-0134b4b7b4b8?w=400&h=600&fit=crop',
-      description: 'Violence erupts between red sandalwood smugglers and the police charged with bringing down their organization.',
-      showtimes: ['2:00 PM', '6:00 PM', '10:00 PM'],
-      language: 'Telugu'
+      title: 'RRR',
+      genre: 'Action',
+      language: 'Telugu',
+      duration: '3h 7m',
+      rating: '8.8',
+      image: '/rrr.jpg',
+      releaseDate: '2022-03-25',
+      showtimes: ['2:30 PM', '5:30 PM', '8:30 PM'],
     },
     {
       id: '3',
-      title: 'Baahubali 2',
-      genre: 'Action/Adventure',
-      duration: '2h 47m',
-      rating: 4.8,
-      price: 15.99,
-      image: 'https://images.unsplash.com/photo-1478720568477-b727778edf6f?w=400&h=600&fit=crop',
-      description: 'When Shiva, the son of Bahubali, learns about his heritage, he begins to look for answers.',
-      showtimes: ['11:00 AM', '3:00 PM', '7:00 PM', '10:30 PM'],
-      language: 'Telugu'
+      title: 'K.G.F: Chapter 2',
+      genre: 'Action',
+      language: 'Kannada',
+      duration: '2h 48m',
+      rating: '8.4',
+      image: '/kgf2.jpg',
+      releaseDate: '2022-04-14',
+      showtimes: ['1:00 PM', '4:00 PM', '7:00 PM', '10:00 PM'],
     },
     {
       id: '4',
-      title: 'Arjun Reddy',
-      genre: 'Romance/Drama',
-      duration: '3h 2m',
-      rating: 4.3,
-      price: 11.99,
-      image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=600&fit=crop',
-      description: 'A short-tempered house surgeon gets used to drugs and drinks when his girlfriend is forced to marry another person.',
-      showtimes: ['12:00 PM', '4:00 PM', '8:00 PM'],
-      language: 'Telugu'
+      title: 'Pushpa: The Rise',
+      genre: 'Action',
+      language: 'Telugu',
+      duration: '2h 59m',
+      rating: '7.6',
+      image: '/pushpa.jpg',
+      releaseDate: '2021-12-17',
+      showtimes: ['11:30 AM', '2:30 PM', '5:30 PM'],
     },
     {
       id: '5',
-      title: 'KGF Chapter 2',
-      genre: 'Action/Drama',
-      duration: '2h 48m',
-      rating: 4.6,
-      price: 14.99,
-      image: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=600&fit=crop',
-      description: 'The blood-soaked land of Kolar Gold Fields has a new overlord now - Rocky, whose name strikes fear in the heart of his foes.',
-      showtimes: ['1:30 PM', '5:30 PM', '9:30 PM'],
-      language: 'Telugu'
+      title: 'Baahubali: The Beginning',
+      genre: 'Action',
+      language: 'Telugu',
+      duration: '2h 39m',
+      rating: '8.2',
+      image: '/baahubali.jpg',
+      releaseDate: '2015-07-10',
+      showtimes: ['3:30 PM', '6:30 PM', '9:30 PM'],
     },
-    // English Movies
     {
       id: '6',
-      title: 'Avatar: The Way of Water',
-      genre: 'Sci-Fi/Adventure',
-      duration: '3h 12m',
-      rating: 4.5,
-      price: 15.99,
-      image: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400&h=600&fit=crop',
-      description: 'Jake Sully lives with his newfound family formed on the extrasolar moon Pandora.',
-      showtimes: ['10:00 AM', '2:00 PM', '6:00 PM', '10:00 PM'],
-      language: 'English'
+      title: 'Avengers: Endgame',
+      genre: 'Action',
+      language: 'English',
+      duration: '3h 2m',
+      rating: '8.4',
+      image: '/avengers.jpg',
+      releaseDate: '2019-04-26',
+      showtimes: ['12:30 PM', '4:30 PM', '8:30 PM'],
     },
     {
       id: '7',
-      title: 'Top Gun: Maverick',
-      genre: 'Action/Drama',
-      duration: '2h 37m',
-      rating: 4.8,
-      price: 14.99,
-      image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=600&fit=crop',
-      description: 'After thirty years, Maverick is still pushing the envelope as a top naval aviator.',
-      showtimes: ['11:00 AM', '3:00 PM', '7:00 PM', '10:30 PM'],
-      language: 'English'
+      title: 'Interstellar',
+      genre: 'Sci-Fi',
+      language: 'English',
+      duration: '2h 49m',
+      rating: '8.6',
+      image: '/interstellar.jpg',
+      releaseDate: '2014-11-07',
+      showtimes: ['1:30 PM', '5:30 PM', '9:30 PM'],
     },
-    // Hindi Movies
-    {
-      id: '8',
-      title: 'Dangal',
-      genre: 'Biography/Sport',
-      duration: '2h 41m',
-      rating: 4.7,
-      price: 13.99,
-      image: 'https://images.unsplash.com/photo-1594736797933-d0cc7d06d205?w=400&h=600&fit=crop',
-      description: 'Former wrestler Mahavir Singh Phogat trains his daughters to become world-class wrestlers.',
-      showtimes: ['12:30 PM', '4:30 PM', '8:30 PM'],
-      language: 'Hindi'
-    },
-    // Korean Movies
-    {
-      id: '9',
-      title: 'Parasite',
-      genre: 'Thriller/Drama',
-      duration: '2h 12m',
-      rating: 4.6,
-      price: 12.99,
-      image: 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=400&h=600&fit=crop',
-      description: 'Greed and class discrimination threaten the newly formed symbiotic relationship.',
-      showtimes: ['2:00 PM', '6:00 PM', '10:00 PM'],
-      language: 'Korean'
-    }
   ];
 
-  const languages = ['Telugu', 'English', 'Hindi', 'Korean'];
-  const genres = ['all', 'Action/Adventure', 'Action/Drama', 'Action/Thriller', 'Sci-Fi/Adventure', 'Thriller/Drama', 'Romance/Drama', 'Biography/Sport'];
+  const filteredMovies = useMemo(() => {
+    return movies.filter(movie => {
+      const matchesSearch = movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          movie.genre.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesLanguage = selectedLanguage === 'all' || movie.language === selectedLanguage;
+      const matchesGenre = selectedGenre === 'all' || movie.genre.toLowerCase().includes(selectedGenre.toLowerCase());
+      
+      return matchesSearch && matchesLanguage && matchesGenre;
+    });
+  }, [searchTerm, selectedLanguage, selectedGenre]);
 
-  const filteredMovies = movies.filter(movie => {
-    const searchLower = searchQuery.toLowerCase().trim();
-    const titleMatch = movie.title.toLowerCase().includes(searchLower);
-    const descriptionMatch = movie.description.toLowerCase().includes(searchLower);
-    const genreMatch = movie.genre.toLowerCase().includes(searchLower);
-    
-    const matchesSearch = searchQuery === '' || titleMatch || descriptionMatch || genreMatch;
-    const matchesLanguage = movie.language === selectedLanguage;
-    const matchesGenre = selectedGenre === 'all' || movie.genre === selectedGenre;
-    
-    return matchesSearch && matchesLanguage && matchesGenre;
-  });
-
-  const handleBookTicket = (movie: Movie) => {
-    navigate('/booking', { state: { movie } });
-  };
-
-  const handleHelp = () => {
-    navigate('/help');
-  };
-
-  const clearAllFilters = () => {
-    setSearchQuery('');
-    setSelectedLanguage('Telugu');
-    setSelectedGenre('all');
+  const handleBookNow = (movieTitle: string) => {
+    navigate('/booking', { 
+      state: { 
+        movie: movieTitle,
+        language: selectedLanguage 
+      } 
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+      <Navbar />
+      
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Header */}
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-5xl font-bold text-white mb-2">Now Showing</h1>
-              <p className="text-gray-300 text-lg">Discover and book your favorite movies</p>
-            </div>
-            <Button
-              onClick={handleHelp}
-              variant="outline"
-              className="border-purple-400 text-purple-300 hover:bg-purple-800 hover:text-white transition-all duration-300"
-            >
-              <HelpCircle className="h-4 w-4 mr-2" />
-              Help
-            </Button>
-          </div>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">Now Showing</h1>
+          <p className="text-gray-600">Book your favorite movies and enjoy the cinema experience</p>
         </div>
 
-        {/* Search and Filter Section */}
-        <div className="mb-8 p-6 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20">
-          <div className="flex flex-col lg:flex-row gap-4 mb-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-3 h-5 w-5 text-gray-400" />
+        {/* Search and Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="md:col-span-1">
+            <div className="relative">
               <Input
-                placeholder="Search movies by title, genre, or description..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 bg-white/20 border-white/30 text-white placeholder:text-gray-300 focus:bg-white/30 transition-all duration-300"
+                type="text"
+                placeholder="Search movies..."
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
-            </div>
-            
-            <div className="flex gap-4">
-              <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                <SelectTrigger className="w-48 h-12 bg-white/20 border-white/30 text-white">
-                  <SelectValue placeholder="Select Language" />
-                </SelectTrigger>
-                <SelectContent>
-                  {languages.map((language) => (
-                    <SelectItem key={language} value={language}>
-                      {language}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={selectedGenre} onValueChange={setSelectedGenre}>
-                <SelectTrigger className="w-56 h-12 bg-white/20 border-white/30 text-white">
-                  <SelectValue placeholder="Select Genre" />
-                </SelectTrigger>
-                <SelectContent>
-                  {genres.map((genre) => (
-                    <SelectItem key={genre} value={genre}>
-                      {genre === 'all' ? 'All Genres' : genre}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-gray-300">
-              <Filter className="h-4 w-4" />
-              Showing {filteredMovies.length} {selectedLanguage} movies
-            </div>
-            
-            {(searchQuery !== '' || selectedGenre !== 'all') && (
-              <Button
-                onClick={clearAllFilters}
-                variant="outline"
-                size="sm"
-                className="border-purple-400 text-purple-300 hover:bg-purple-700 hover:text-white"
-              >
-                Clear All Filters
-              </Button>
-            )}
+          <div className="md:col-span-1">
+            <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Language" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Languages</SelectItem>
+                <SelectItem value="Telugu">Telugu</SelectItem>
+                <SelectItem value="English">English</SelectItem>
+                <SelectItem value="Kannada">Kannada</SelectItem>
+                <SelectItem value="Hindi">Hindi</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="md:col-span-1">
+            <Select value={selectedGenre} onValueChange={setSelectedGenre}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Genre" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Genres</SelectItem>
+                <SelectItem value="action">Action</SelectItem>
+                <SelectItem value="drama">Drama</SelectItem>
+                <SelectItem value="sci-fi">Sci-Fi</SelectItem>
+                <SelectItem value="comedy">Comedy</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         {/* Movies Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredMovies.map((movie) => (
-            <Card key={movie.id} className="group backdrop-blur-sm bg-white/10 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden hover:scale-105">
-              <div className="relative overflow-hidden">
-                <img 
-                  src={movie.image} 
-                  alt={movie.title}
-                  className="w-full h-72 object-cover transition-transform duration-500 group-hover:scale-110"
-                  onError={(e) => {
-                    e.currentTarget.src = 'https://images.unsplash.com/photo-1489599433114-0134b4b7b4b8?w=400&h=600&fit=crop';
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold px-3 py-1">
-                  ${movie.price}
-                </Badge>
-                <Badge className="absolute top-4 left-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold px-3 py-1">
-                  {movie.language}
-                </Badge>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="flex items-center gap-2 text-white">
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-semibold">{movie.rating}</span>
-                    <Clock className="h-4 w-4 ml-2" />
-                    <span className="text-sm">{movie.duration}</span>
+          {filteredMovies.length > 0 ? (
+            filteredMovies.map((movie) => (
+              <Card key={movie.id} className="group hover:shadow-xl transition-all duration-300 backdrop-blur-sm bg-white/90 border-0 overflow-hidden">
+                <div className="relative overflow-hidden">
+                  <img
+                    src={movie.image}
+                    alt={movie.title}
+                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.currentTarget.src = '/placeholder.svg';
+                    }}
+                  />
+                  <div className="absolute top-4 right-4">
+                    <Badge className="bg-yellow-500 text-white">
+                      <Star className="h-3 w-3 mr-1" />
+                      {movie.rating}
+                    </Badge>
                   </div>
-                </div>
-              </div>
-              
-              <CardHeader className="pb-3">
-                <CardTitle className="text-xl text-white group-hover:text-purple-300 transition-colors duration-300">
-                  {movie.title}
-                </CardTitle>
-                <Badge variant="secondary" className="w-fit bg-purple-600/20 text-purple-200 border-purple-400/30">
-                  {movie.genre}
-                </Badge>
-              </CardHeader>
-              
-              <CardContent className="pt-0">
-                <p className="text-sm text-gray-300 mb-4 line-clamp-2">{movie.description}</p>
-                
-                <div className="mb-4">
-                  <h4 className="font-semibold mb-2 flex items-center gap-2 text-white">
-                    <Calendar className="h-4 w-4" />
-                    Showtimes
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {movie.showtimes.slice(0, 3).map((time, index) => (
-                      <Badge key={index} variant="outline" className="text-xs border-purple-400/50 text-purple-300 hover:bg-purple-600/20">
-                        {time}
-                      </Badge>
-                    ))}
-                    {movie.showtimes.length > 3 && (
-                      <Badge variant="outline" className="text-xs border-gray-400/50 text-gray-400">
-                        +{movie.showtimes.length - 3} more
-                      </Badge>
-                    )}
+                  <div className="absolute top-4 left-4">
+                    <Badge variant="secondary" className="bg-orange-500 text-white">
+                      {movie.language}
+                    </Badge>
                   </div>
                 </div>
                 
-                <Button 
-                  onClick={() => handleBookTicket(movie)}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105"
-                >
-                  Book Tickets
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* No Results State */}
-        {filteredMovies.length === 0 && (
-          <div className="text-center py-16">
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 p-8 max-w-md mx-auto">
-              <h3 className="text-2xl font-bold text-white mb-4">No movies found</h3>
-              <p className="text-gray-300 text-lg mb-6">
-                Try adjusting your search or filter criteria
-              </p>
-              <Button 
-                onClick={clearAllFilters}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-6 py-3"
-              >
-                Clear All Filters
-              </Button>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-bold line-clamp-1">{movie.title}</CardTitle>
+                  <CardDescription className="text-sm text-gray-600">
+                    {movie.genre}
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardContent className="pt-0">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        {movie.duration}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        {movie.releaseDate}
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-1">
+                      {movie.showtimes.slice(0, 3).map((time, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {time}
+                        </Badge>
+                      ))}
+                      {movie.showtimes.length > 3 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{movie.showtimes.length - 3} more
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <Button 
+                      className="w-full bg-gradient-to-r from-orange-400 to-amber-400 hover:from-orange-500 hover:to-amber-500 text-white font-medium"
+                      onClick={() => handleBookNow(movie.title)}
+                    >
+                      Book Now
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-500 text-lg">No movies found matching your criteria</p>
+              <p className="text-gray-400 text-sm mt-2">Try adjusting your search or filters</p>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

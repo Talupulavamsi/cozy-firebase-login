@@ -31,18 +31,22 @@ export const BookingProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const loadBookings = async () => {
       try {
+        console.log('Loading bookings from Firebase...');
         const bookingsRef = collection(db, 'bookings');
         const q = query(bookingsRef, orderBy('bookingDate', 'desc'));
         const querySnapshot = await getDocs(q);
         
         const loadedBookings: BookingItem[] = [];
         querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          console.log('Loaded booking:', doc.id, data);
           loadedBookings.push({
             id: doc.id,
-            ...doc.data()
+            ...data
           } as BookingItem);
         });
         
+        console.log('Total bookings loaded:', loadedBookings.length);
         setBookings(loadedBookings);
       } catch (error) {
         console.error('Error loading bookings from Firebase:', error);
@@ -81,11 +85,15 @@ export const BookingProvider = ({ children }: { children: ReactNode }) => {
     try {
       const newBooking = {
         ...booking,
-        bookingDate: new Date().toISOString().split('T')[0]
+        bookingDate: new Date().toISOString().split('T')[0],
+        status: booking.status || 'confirmed'
       };
+
+      console.log('Attempting to save booking to Firebase:', newBooking);
 
       // Add to Firebase
       const docRef = await addDoc(collection(db, 'bookings'), newBooking);
+      console.log('Booking saved to Firebase with ID:', docRef.id);
       
       // Add to local state with Firebase-generated ID
       const bookingWithId: BookingItem = {
@@ -94,17 +102,20 @@ export const BookingProvider = ({ children }: { children: ReactNode }) => {
       };
       
       setBookings(prev => [bookingWithId, ...prev]);
-      console.log('Booking saved to Firebase with ID:', docRef.id);
+      console.log('Booking added to local state');
     } catch (error) {
       console.error('Error saving booking to Firebase:', error);
+      console.error('Error details:', error);
       
       // Fallback to local storage if Firebase fails
       const fallbackBooking: BookingItem = {
         ...booking,
         id: `TXN${Date.now()}`,
-        bookingDate: new Date().toISOString().split('T')[0]
+        bookingDate: new Date().toISOString().split('T')[0],
+        status: booking.status || 'confirmed'
       };
       setBookings(prev => [fallbackBooking, ...prev]);
+      console.log('Fallback booking created:', fallbackBooking.id);
     }
   };
 
