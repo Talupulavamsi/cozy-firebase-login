@@ -27,6 +27,8 @@ export const BookingProvider = ({ children }: { children: ReactNode }) => {
   const [bookings, setBookings] = useState<BookingItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  console.log('BookingProvider rendered, loading:', loading);
+
   // Load bookings from Firebase on component mount
   useEffect(() => {
     const loadBookings = async () => {
@@ -75,6 +77,7 @@ export const BookingProvider = ({ children }: { children: ReactNode }) => {
         ]);
       } finally {
         setLoading(false);
+        console.log('BookingProvider loading complete');
       }
     };
 
@@ -123,16 +126,29 @@ export const BookingProvider = ({ children }: { children: ReactNode }) => {
     return bookings.sort((a, b) => new Date(b.bookingDate).getTime() - new Date(a.bookingDate).getTime());
   };
 
+  const contextValue = { 
+    bookings, 
+    addBooking, 
+    getBookingHistory, 
+    loading 
+  };
+
+  console.log('BookingProvider providing context:', contextValue);
+
   return (
-    <BookingContext.Provider value={{ bookings, addBooking, getBookingHistory, loading }}>
+    <BookingContext.Provider value={contextValue}>
       {children}
     </BookingContext.Provider>
   );
 };
 
 export const useBooking = () => {
+  console.log('useBooking called');
   const context = useContext(BookingContext);
+  console.log('useBooking context:', context);
+  
   if (context === undefined) {
+    console.error('useBooking hook called outside of BookingProvider');
     throw new Error('useBooking must be used within a BookingProvider');
   }
   return context;

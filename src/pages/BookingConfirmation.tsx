@@ -10,14 +10,36 @@ import { useBooking } from '@/contexts/BookingContext';
 const BookingConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { addBooking } = useBooking();
+  console.log('BookingConfirmation component rendering');
+  
+  // Add try-catch around useBooking to debug the issue
+  let bookingHook;
+  try {
+    bookingHook = useBooking();
+    console.log('BookingConfirmation - useBooking successful:', bookingHook);
+  } catch (error) {
+    console.error('BookingConfirmation - useBooking failed:', error);
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 mb-4">Error: Booking context not available</p>
+          <Button onClick={() => navigate('/')}>Go Home</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const { addBooking } = bookingHook;
   const bookingData = location.state;
+
+  console.log('BookingConfirmation - bookingData:', bookingData);
 
   useEffect(() => {
     // Save booking to Firebase when component mounts
-    if (bookingData) {
+    if (bookingData && addBooking) {
       const saveBooking = async () => {
         try {
+          console.log('BookingConfirmation - Saving booking...');
           await addBooking({
             movie: bookingData.movie.title,
             date: new Date().toISOString().split('T')[0],
@@ -26,9 +48,9 @@ const BookingConfirmation = () => {
             amount: bookingData.totalPrice,
             status: 'confirmed'
           });
-          console.log('Booking saved successfully to Firebase');
+          console.log('BookingConfirmation - Booking saved successfully to Firebase');
         } catch (error) {
-          console.error('Failed to save booking:', error);
+          console.error('BookingConfirmation - Failed to save booking:', error);
         }
       };
       
@@ -37,9 +59,13 @@ const BookingConfirmation = () => {
   }, [bookingData, addBooking]);
 
   if (!bookingData) {
+    console.log('BookingConfirmation - No booking data found');
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>No booking data found.</p>
+        <div className="text-center">
+          <p className="mb-4">No booking data found.</p>
+          <Button onClick={() => navigate('/')}>Go Home</Button>
+        </div>
       </div>
     );
   }
