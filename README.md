@@ -1,2 +1,2 @@
 
-My Fisrt react js fully functional program
+My First react js fully functional program
